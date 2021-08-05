@@ -1,6 +1,12 @@
 open Stdlib0
 module From = Ast_414
 module To = Ast_413
+
+module Def = Migrate_parsetree_def
+
+let migration_error location feature =
+  raise (Def.Migration_error (feature, location))
+
 let rec copy_toplevel_phrase :
   Ast_414.Parsetree.toplevel_phrase -> Ast_413.Parsetree.toplevel_phrase =
   function
@@ -1021,9 +1027,10 @@ and copy_extension_constructor_kind :
   =
   function
   | Ast_414.Parsetree.Pext_decl (x0, x1, x2) ->
-      Ast_413.Parsetree.Pext_decl
-        ((List.map (fun x -> copy_loc (fun x -> x) x) x0),
-          (copy_constructor_arguments x1), (Option.map copy_core_type x2))
+      (match x0 with
+      | [] -> Ast_413.Parsetree.Pext_decl
+        ((copy_constructor_arguments x1), (Option.map copy_core_type x2))
+      | hd :: _ -> migration_error hd.loc Extension_constructor)
   | Ast_414.Parsetree.Pext_rebind x0 ->
       Ast_413.Parsetree.Pext_rebind (copy_loc copy_Longident_t x0)
 and copy_type_declaration :
@@ -1087,15 +1094,17 @@ and copy_constructor_declaration :
       Ast_414.Parsetree.pcd_loc = pcd_loc;
       Ast_414.Parsetree.pcd_attributes = pcd_attributes }
     ->
-    {
-      Ast_413.Parsetree.pcd_name = (copy_loc (fun x -> x) pcd_name);
-      Ast_413.Parsetree.pcd_vars =
-        (List.map (fun x -> copy_loc (fun x -> x) x) pcd_vars);
-      Ast_413.Parsetree.pcd_args = (copy_constructor_arguments pcd_args);
-      Ast_413.Parsetree.pcd_res = (Option.map copy_core_type pcd_res);
-      Ast_413.Parsetree.pcd_loc = (copy_location pcd_loc);
-      Ast_413.Parsetree.pcd_attributes = (copy_attributes pcd_attributes)
-    }
+    match pcd_vars with
+    | [] ->
+      {
+        Ast_413.Parsetree.pcd_name = (copy_loc (fun x -> x) pcd_name);
+        Ast_413.Parsetree.pcd_args = (copy_constructor_arguments pcd_args);
+        Ast_413.Parsetree.pcd_res = (Option.map copy_core_type pcd_res);
+        Ast_413.Parsetree.pcd_loc = (copy_location pcd_loc);
+        Ast_413.Parsetree.pcd_attributes = (copy_attributes pcd_attributes)
+      }
+    | hd :: _ -> migration_error hd.loc Pcd_vars
+
 and copy_constructor_arguments :
   Ast_414.Parsetree.constructor_arguments ->
     Ast_413.Parsetree.constructor_arguments

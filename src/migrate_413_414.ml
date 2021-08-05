@@ -1022,7 +1022,7 @@ and copy_extension_constructor_kind :
   function
   | Ast_413.Parsetree.Pext_decl (x0, x1) ->
       Ast_414.Parsetree.Pext_decl
-        ((copy_constructor_arguments x0), (Option.map copy_core_type x1))
+        ([], (copy_constructor_arguments x0), (Option.map copy_core_type x1))
   | Ast_413.Parsetree.Pext_rebind x0 ->
       Ast_414.Parsetree.Pext_rebind (copy_loc copy_Longident_t x0)
 and copy_type_declaration :
@@ -1087,6 +1087,7 @@ and copy_constructor_declaration :
     ->
     {
       Ast_414.Parsetree.pcd_name = (copy_loc (fun x -> x) pcd_name);
+      Ast_414.Parsetree.pcd_vars = [];
       Ast_414.Parsetree.pcd_args = (copy_constructor_arguments pcd_args);
       Ast_414.Parsetree.pcd_res = (Option.map copy_core_type pcd_res);
       Ast_414.Parsetree.pcd_loc = (copy_location pcd_loc);
