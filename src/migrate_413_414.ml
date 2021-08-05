@@ -317,7 +317,7 @@ and copy_core_type :
     }
 and copy_location_stack :
   Ast_413.Parsetree.location_stack -> Ast_414.Parsetree.location_stack =
-  fun x -> List.map copy_location x
+  fun x -> x
 and copy_core_type_desc :
   Ast_413.Parsetree.core_type_desc -> Ast_414.Parsetree.core_type_desc =
   function
@@ -1188,11 +1188,7 @@ and copy_constant : Ast_413.Parsetree.constant -> Ast_414.Parsetree.constant
   | Ast_413.Parsetree.Pconst_float (x0, x1) ->
       Ast_414.Parsetree.Pconst_float (x0, (Option.map (fun x -> x) x1))
 and copy_Longident_t : Longident.t -> Longident.t =
-  function
-  | Longident.Lident x0 -> Longident.Lident x0
-  | Longident.Ldot (x0, x1) -> Longident.Ldot ((copy_Longident_t x0), x1)
-  | Longident.Lapply (x0, x1) ->
-      Longident.Lapply ((copy_Longident_t x0), (copy_Longident_t x1))
+  fun x -> x
 and copy_loc :
   'f0 'g0 .
     ('f0 -> 'g0) -> 'f0 Ast_413.Asttypes.loc -> 'g0 Ast_414.Asttypes.loc
@@ -1204,23 +1200,4 @@ and copy_loc :
         Ast_414.Asttypes.loc = (copy_location loc)
       }
 and copy_location : Location.t -> Location.t =
-  fun
-    { Location.loc_start = loc_start; Location.loc_end = loc_end;
-      Location.loc_ghost = loc_ghost }
-    ->
-    {
-      Location.loc_start = (copy_position loc_start);
-      Location.loc_end = (copy_position loc_end);
-      Location.loc_ghost = loc_ghost
-    }
-and copy_position : Stdlib.Lexing.position -> Stdlib.Lexing.position =
-  fun
-    { Stdlib.Lexing.pos_fname = pos_fname; Stdlib.Lexing.pos_lnum = pos_lnum;
-      Stdlib.Lexing.pos_bol = pos_bol; Stdlib.Lexing.pos_cnum = pos_cnum }
-    ->
-    {
-      Stdlib.Lexing.pos_fname = pos_fname;
-      Stdlib.Lexing.pos_lnum = pos_lnum;
-      Stdlib.Lexing.pos_bol = pos_bol;
-      Stdlib.Lexing.pos_cnum = pos_cnum
-    }
+  fun x -> x
